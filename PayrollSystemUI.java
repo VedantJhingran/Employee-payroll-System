@@ -5,12 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector; // Used by DefaultTableModel
 
 public class PayrollSystemUI extends JFrame {
 
     // --- Data Model ---
-    // Represents an Employee
     static class Employee {
         private String id;
         private String name;
@@ -24,40 +22,16 @@ public class PayrollSystemUI extends JFrame {
             this.hoursWorked = hoursWorked;
         }
 
-        // Getters
-        public String getId() {
-            return id;
-        }
+        public String getId() { return id; }
+        public String getName() { return name; }
+        public double getHourlyRate() { return hourlyRate; }
+        public double getHoursWorked() { return hoursWorked; }
 
-        public String getName() {
-            return name;
-        }
+        public void setName(String name) { this.name = name; }
+        public void setHourlyRate(double hourlyRate) { this.hourlyRate = hourlyRate; }
+        public void setHoursWorked(double hoursWorked) { this.hoursWorked = hoursWorked; }
 
-        public double getHourlyRate() {
-            return hourlyRate;
-        }
-
-        public double getHoursWorked() {
-            return hoursWorked;
-        }
-
-        // Setters (for updating employee details)
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setHourlyRate(double hourlyRate) {
-            this.hourlyRate = hourlyRate;
-        }
-
-        public void setHoursWorked(double hoursWorked) {
-            this.hoursWorked = hoursWorked;
-        }
-
-        // Method to calculate gross pay
-        public double calculateGrossPay() {
-            return hourlyRate * hoursWorked;
-        }
+        public double calculateGrossPay() { return hourlyRate * hoursWorked; }
 
         @Override
         public String toString() {
@@ -65,109 +39,79 @@ public class PayrollSystemUI extends JFrame {
         }
     }
 
-    // List to store all employees (in-memory database)
     private List<Employee> employees = new ArrayList<>();
 
-    // --- UI Components ---
     private JTabbedPane tabbedPane;
-
-    // Employee Management Tab Components
-    private JTextField employeeIdField;
-    private JTextField employeeNameField;
-    private JTextField hourlyRateField;
-    private JTextField hoursWorkedField;
-    private JButton addEmployeeButton;
-    private JButton insertEmployeeButton;
-    private JButton updateEmployeeButton;
-    private JButton deleteEmployeeButton;
-    private JButton enterButton; // New Enter Button
+    private JTextField employeeIdField, employeeNameField, hourlyRateField, hoursWorkedField;
+    private JButton addEmployeeButton, insertEmployeeButton, updateEmployeeButton, deleteEmployeeButton, enterButton;
     private JTable employeeTable;
     private DefaultTableModel employeeTableModel;
 
-    // Payroll Processing Tab Components
     private JTextField payrollEmployeeIdField;
     private JTextArea payslipDisplayArea;
     private JButton calculatePayButton;
 
-    // --- Constructor ---
     public PayrollSystemUI() {
         setTitle("Employee Payroll System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window
+        setLocationRelativeTo(null);
 
-        // Initialize tabbed pane
         tabbedPane = new JTabbedPane();
 
-        // Build Employee Management Tab
         JPanel employeePanel = createEmployeeManagementPanel();
         tabbedPane.addTab("Employee Management", employeePanel);
 
-        // Build Payroll Processing Tab
         JPanel payrollPanel = createPayrollProcessingPanel();
         tabbedPane.addTab("Payroll Processing", payrollPanel);
 
-        // Add tabbed pane to the frame
         add(tabbedPane);
 
-        // Load some sample data
         loadSampleData();
         updateEmployeeTable();
     }
 
-    // --- Panel Creation Methods ---
-
     private JPanel createEmployeeManagementPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10)); // Main panel for employee management
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // --- Input Form Panel (North) ---
         JPanel inputFormPanel = new JPanel(new GridBagLayout());
         inputFormPanel.setBorder(BorderFactory.createTitledBorder("Employee Details"));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Padding between components
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Labels and Text Fields
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridx = 0; gbc.gridy = 0;
         inputFormPanel.add(new JLabel("Employee ID:"), gbc);
         gbc.gridx = 1;
         employeeIdField = new JTextField(15);
         inputFormPanel.add(employeeIdField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridx = 0; gbc.gridy = 1;
         inputFormPanel.add(new JLabel("Name:"), gbc);
         gbc.gridx = 1;
         employeeNameField = new JTextField(15);
         inputFormPanel.add(employeeNameField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 2;
         inputFormPanel.add(new JLabel("Hourly Rate:"), gbc);
         gbc.gridx = 1;
         hourlyRateField = new JTextField(15);
         inputFormPanel.add(hourlyRateField, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 3;
         inputFormPanel.add(new JLabel("Hours Worked:"), gbc);
         gbc.gridx = 1;
         hoursWorkedField = new JTextField(15);
         inputFormPanel.add(hoursWorkedField, gbc);
 
-        // --- New Enter Button at the bottom of the input form panel ---
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 2; // Span across two columns
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
         enterButton = new JButton("Enter");
         inputFormPanel.add(enterButton, gbc);
 
         panel.add(inputFormPanel, BorderLayout.NORTH);
 
-        // --- Buttons Panel (Center - above table) ---
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Center buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         addEmployeeButton = new JButton("Add Employee");
         insertEmployeeButton = new JButton("Insert Employee");
         updateEmployeeButton = new JButton("Update Employee");
@@ -178,26 +122,23 @@ public class PayrollSystemUI extends JFrame {
         buttonPanel.add(updateEmployeeButton);
         buttonPanel.add(deleteEmployeeButton);
 
-        panel.add(buttonPanel, BorderLayout.CENTER); // Add button panel to the center of the main panel
+        panel.add(buttonPanel, BorderLayout.CENTER);
 
-        // --- Employee Table Panel (South) ---
         String[] columnNames = {"ID", "Name", "Hourly Rate", "Hours Worked", "Gross Pay"};
         employeeTableModel = new DefaultTableModel(columnNames, 0);
         employeeTable = new JTable(employeeTableModel);
-        employeeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Allow only single row selection
+        employeeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(employeeTable);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Employee List"));
 
-        panel.add(scrollPane, BorderLayout.SOUTH); // Add table to the south of the main panel
+        panel.add(scrollPane, BorderLayout.SOUTH);
 
-        // --- Event Listeners ---
         addEmployeeButton.addActionListener(new AddEmployeeAction());
         insertEmployeeButton.addActionListener(new AddEmployeeAction());
-        enterButton.addActionListener(new AddEmployeeAction()); // Assign the same action listener to the new button
+        enterButton.addActionListener(new AddEmployeeAction());
         updateEmployeeButton.addActionListener(new UpdateEmployeeAction());
         deleteEmployeeButton.addActionListener(new DeleteEmployeeAction());
 
-        // Listener to populate fields when a table row is selected
         employeeTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && employeeTable.getSelectedRow() != -1) {
                 int selectedRow = employeeTable.getSelectedRow();
@@ -205,9 +146,9 @@ public class PayrollSystemUI extends JFrame {
                 employeeNameField.setText(employeeTableModel.getValueAt(selectedRow, 1).toString());
                 hourlyRateField.setText(employeeTableModel.getValueAt(selectedRow, 2).toString());
                 hoursWorkedField.setText(employeeTableModel.getValueAt(selectedRow, 3).toString());
-                employeeIdField.setEditable(false); // Prevent ID changes when updating
+                employeeIdField.setEditable(false);
             } else {
-                employeeIdField.setEditable(true); // Allow ID input when nothing is selected
+                employeeIdField.setEditable(true);
             }
         });
 
@@ -218,7 +159,6 @@ public class PayrollSystemUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Input and Button Panel (North)
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         inputPanel.setBorder(BorderFactory.createTitledBorder("Calculate Payslip"));
         inputPanel.add(new JLabel("Employee ID:"));
@@ -228,7 +168,6 @@ public class PayrollSystemUI extends JFrame {
         inputPanel.add(calculatePayButton);
         panel.add(inputPanel, BorderLayout.NORTH);
 
-        // Payslip Display Area (Center)
         payslipDisplayArea = new JTextArea(15, 40);
         payslipDisplayArea.setEditable(false);
         payslipDisplayArea.setLineWrap(true);
@@ -237,24 +176,19 @@ public class PayrollSystemUI extends JFrame {
         scrollPane.setBorder(BorderFactory.createTitledBorder("Payslip Details"));
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Event Listener
         calculatePayButton.addActionListener(new CalculatePayAction());
 
         return panel;
     }
 
-    // --- Helper Methods ---
-
-    // Adds sample data to the employees list
     private void loadSampleData() {
         employees.add(new Employee("EMP001", "Alice Smith", 25.0, 160.0));
         employees.add(new Employee("EMP002", "Bob Johnson", 30.0, 150.0));
         employees.add(new Employee("EMP003", "Charlie Brown", 20.0, 170.0));
     }
 
-    // Updates the JTable with current employee data
     private void updateEmployeeTable() {
-        employeeTableModel.setRowCount(0); // Clear existing data
+        employeeTableModel.setRowCount(0);
         for (Employee emp : employees) {
             Object[] rowData = {
                     emp.getId(),
@@ -267,17 +201,14 @@ public class PayrollSystemUI extends JFrame {
         }
     }
 
-    // Clears input fields
     private void clearEmployeeFields() {
         employeeIdField.setText("");
         employeeNameField.setText("");
         hourlyRateField.setText("");
         hoursWorkedField.setText("");
-        employeeIdField.setEditable(true); // Ensure ID is editable for new entries
-        employeeTable.clearSelection(); // Deselect any row
+        employeeIdField.setEditable(true);
+        employeeTable.clearSelection();
     }
-
-    // --- Action Listeners ---
 
     private class AddEmployeeAction implements ActionListener {
         @Override
@@ -293,7 +224,6 @@ public class PayrollSystemUI extends JFrame {
                     return;
                 }
 
-                // Check for duplicate ID
                 for (Employee emp : employees) {
                     if (emp.getId().equals(id)) {
                         showMessage("Employee with this ID already exists.", "Duplicate ID", JOptionPane.WARNING_MESSAGE);
@@ -303,7 +233,6 @@ public class PayrollSystemUI extends JFrame {
 
                 Employee newEmployee = new Employee(id, name, hourlyRate, hoursWorked);
                 employees.add(newEmployee);
-                System.out.println("Added new employee: " + newEmployee.getName() + " (ID: " + newEmployee.getId() + ")");
                 updateEmployeeTable();
                 clearEmployeeFields();
                 showMessage("Employee added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -324,17 +253,16 @@ public class PayrollSystemUI extends JFrame {
             }
 
             try {
-                String id = employeeIdField.getText().trim(); // ID is from the selected row, not editable
+                String id = employeeIdField.getText().trim();
                 String name = employeeNameField.getText().trim();
                 double hourlyRate = Double.parseDouble(hourlyRateField.getText().trim());
-                double hoursWorked = Double.parseDouble(hourlyRateField.getText().trim()); // Fixed: Was hourlyRateField.getText()
+                double hoursWorked = Double.parseDouble(hoursWorkedField.getText().trim());
 
                 if (name.isEmpty() || hourlyRate <= 0 || hoursWorked < 0) {
                     showMessage("Please fill in all fields correctly.", "Input Error", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
-                // Find the employee by ID and update
                 for (Employee emp : employees) {
                     if (emp.getId().equals(id)) {
                         emp.setName(name);
@@ -399,7 +327,6 @@ public class PayrollSystemUI extends JFrame {
 
             if (foundEmployee != null) {
                 double grossPay = foundEmployee.calculateGrossPay();
-                // Simple deduction example (e.g., 10% tax)
                 double taxRate = 0.10;
                 double taxDeduction = grossPay * taxRate;
                 double netPay = grossPay - taxDeduction;
@@ -431,16 +358,11 @@ public class PayrollSystemUI extends JFrame {
         }
     }
 
-    // Custom message box function instead of alert()
     private void showMessage(String message, String title, int messageType) {
         JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
-    // --- Main Method ---
     public static void main(String[] args) {
-        // Ensure the UI is created and run on the Event Dispatch Thread (EDT)
-        SwingUtilities.invokeLater(() -> {
-            new PayrollSystemUI().setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new PayrollSystemUI().setVisible(true));
     }
-          }
+}
